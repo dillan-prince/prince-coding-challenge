@@ -3,24 +3,20 @@ const express = require('express');
 const app = express();
 
 if (process.env.NODE_ENV === 'production') {
-    app.use(express.static('../src/client/build'));
+    app.use(express.static('src/client/build'));
 
     const path = require('path');
     app.get('*', (req, res) => {
-        res.sendFile(
-            path.resolve(
-                __dirname,
-                '..',
-                'src',
-                'client',
-                'build',
-                'index.html'
-            )
-        );
+        res.sendFile(path.resolve(__dirname, '../src/client/build/index.html'));
     });
 }
 
 app.get('/api', (req, res) => {
+    console.log('get request to "/api" handled.');
+    return res.status(200).send('get request to "/api" handled.');
+});
+
+app.get('/', (req, res) => {
     console.log('get request to "/" handled.');
     return res.status(200).send('get request to "/" handled.');
 });
