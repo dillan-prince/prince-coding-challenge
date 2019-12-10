@@ -1,22 +1,28 @@
 import React from 'react';
+import SearchBar from './components/searchBar';
+import StoreList from './components/storeList';
+import Map from './components/map';
 
-class App extends React.Component {
-    constructor(props) {
-        super(props);
-
-        this.state = { message: 'Awaiting response from /api' };
-    }
-
-    render() {
-        return <div className="App">{this.state.message}</div>;
-    }
-
-    async componentDidMount() {
-        const response = await fetch('/api');
-        const { message } = await response.json();
-
-        this.setState({ message });
-    }
-}
+const App = () => {
+    return (
+        <div className="App">
+            <div className="container">
+                <div className="row">
+                    <div className="col-md">
+                        <SearchBar />
+                    </div>
+                </div>
+                <div className="row">
+                    <div className="col-3">
+                        <StoreList />
+                    </div>
+                    <div className="col">
+                        <Map />
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
 
 export default App;

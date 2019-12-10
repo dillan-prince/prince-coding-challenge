@@ -2,11 +2,6 @@ const express = require('express');
 
 const app = express();
 
-app.get('/api', (req, res) => {
-    console.log('get request to "/api" handled.');
-    return res.status(200).send({ message: 'get request to "/api" handled.' });
-});
-
 if (process.env.NODE_ENV === 'production') {
     app.use(express.static('src/client/build'));
 
