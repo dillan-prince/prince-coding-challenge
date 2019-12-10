@@ -12,6 +12,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 app.get('/api', (req, res) => {
+    console.log('get request to "/api" handled.');
     return res.status(200).send({ message: 'get request to "/api" handled.' });
 });
 
