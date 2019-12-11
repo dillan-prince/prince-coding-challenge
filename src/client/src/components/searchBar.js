@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import AwesomeDebouncePromise from 'awesome-debounce-promise';
+import debounce from 'debounce-promise';
 
 const SearchBar = (props) => {
     const [searchValue, setSearchValue] = useState('');
-    const searchUndebounced = (value) => fetch(`/api/search?q=${value}`);
-    const searchDebounced = AwesomeDebouncePromise(searchUndebounced, 500);
+    const search = (value) => fetch(`/api/search?q=${value}`);
+    const searchDebounced = debounce(search, 500);
 
     const handleSearch = async (e) => {
         setSearchValue(e.target.value);
@@ -15,6 +15,7 @@ const SearchBar = (props) => {
 
         const response = await searchDebounced(e.target.value);
         const json = await response.json();
+
         props.handleSearchBarChange(json);
     };
 

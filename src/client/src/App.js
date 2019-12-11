@@ -8,6 +8,8 @@ const App = () => {
     const [storeList, setStoreList] = useState([]);
 
     const getStoreList = async () => {
+        let stores = [];
+
         const cacheListKey = 'popspots_store_list_object_cache_key';
         const cacheTimeKey = 'popspots_store_list_time_cache_key';
 
@@ -21,30 +23,21 @@ const App = () => {
             // if object was stored less than 4 hours ago
             if (now - timeStored < 1000 * 60 * 60 * 4) {
                 console.log('Retrieving storeList from cache');
-                const stores = JSON.parse(storeListString);
-                setStoreList(stores);
-                return;
+                stores = JSON.parse(storeListString);
             }
+        } else {
+            console.log('Retrieving storeList from server');
+            const response = await fetch(
+                'https://dashboard.getpopspots.com/public-data/challenge'
+            );
+            const json = await response.json();
+            localStorage.setItem(cacheListKey, JSON.stringify(json));
+            localStorage.setItem(cacheTimeKey, Date.now().toString());
+            stores = json;
         }
 
-        console.log('Retrieving storeList from server');
-        const response = await fetch(
-            'https://dashboard.getpopspots.com/public-data/challenge'
-        );
-        const json = await response.json();
-        localStorage.setItem(cacheListKey, JSON.stringify(json));
-        localStorage.setItem(cacheTimeKey, Date.now().toString());
-        setStoreList(json);
-    };
-
-    useEffect(() => {
-        getStoreList();
-    }, []);
-
-    const handleSearchBarChange = (coordinates) => {
-        console.log(coordinates);
         setStoreList(
-            storeList.sort((storeOne, storeTwo) => {
+            stores.sort((storeOne, storeTwo) => {
                 const distanceOne = getDistance(coordinates, {
                     latitude: storeOne.lat,
                     longitude: storeOne.lng
@@ -60,8 +53,25 @@ const App = () => {
         );
     };
 
+    useEffect(() => {
+        getStoreList();
+    }, []);
+
+    const [zoom, setZoom] = useState(4);
+    const [coordinates, setCoordinates] = useState({
+        latitude: 37.0902,
+        longitude: -95.7129
+    });
+
+    const handleSearchBarChange = (coords) => {
+        setCoordinates(coords);
+        setZoom(8);
+    };
+
     const handleStoreSelected = (store) => {
-        console.log('Selected Store: ' + store.name);
+        const { lat, lng } = store;
+        setCoordinates({ latitude: lat, longitude: lng });
+        setZoom(13);
     };
 
     return (
@@ -92,7 +102,11 @@ const App = () => {
                         />
                     </div>
                     <div className="col">
-                        <Map />
+                        <Map
+                            coordinates={coordinates}
+                            storeList={storeList}
+                            zoom={zoom}
+                        />
                     </div>
                 </div>
             </div>
