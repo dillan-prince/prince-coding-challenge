@@ -26,4 +26,4 @@ The server has an endpoint (`/api/search`) that integrates with OpenCageData to 
 
 #### [Debouncing With React Hooks](https://dev.to/gabe_ragland/debouncing-with-react-hooks-jci)
 
-The SearchBar component makes requests to `/api/search?q={search term}`. The thing I struggled with the most while writing this app was
+The SearchBar component makes requests to `/api/search?q={search term}`. The thing I struggled with the most while writing this app was that I knew I needed to debounce these requests - not only because it's the right thing to do but also because OpenCageData will block all of your requests if you make more than one per second. It wasn't clear how to get a debounce strategy to work with React Hooks. After a lot of searching, I finally found this blog that explained the process very clearly. By creating your own hook to debounce the changing of a value, you can then use this debounced value as a dependency in the useEffect hook. Then, when you stop typing in the SearchBar component, the value will finally update and trigger the request to the search endpoint.
