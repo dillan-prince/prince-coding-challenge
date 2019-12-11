@@ -1,23 +1,23 @@
-import React, { useState } from 'react';
-import debounce from 'debounce-promise';
+import React, { useState, useEffect } from 'react';
+import useDebounce from '../hooks/useDebounce';
 
 const SearchBar = (props) => {
     const [searchValue, setSearchValue] = useState('');
-    const search = (value) => fetch(`/api/search?q=${value}`);
-    const searchDebounced = debounce(search, 500);
+    const debouncedSearchValue = useDebounce(searchValue, 500);
 
-    const handleSearch = async (e) => {
-        setSearchValue(e.target.value);
+    useEffect(() => {
+        const search = async () => {
+            if (debouncedSearchValue) {
+                const response = await fetch(
+                    `/api/search?q=${debouncedSearchValue}`
+                );
+                const json = await response.json();
+                props.handleSearchBarChange(json);
+            }
+        };
 
-        if (e.target.value.length < 2) {
-            return;
-        }
-
-        const response = await searchDebounced(e.target.value);
-        const json = await response.json();
-
-        props.handleSearchBarChange(json);
-    };
+        search();
+    }, [debouncedSearchValue]);
 
     return (
         <div className="SearchBar">
@@ -25,10 +25,10 @@ const SearchBar = (props) => {
                 <input
                     type="text"
                     className="form-control"
-                    placeholder="Search for a city, state, or postal code..."
+                    placeholder="Search for a city, state, or postal code in the United States..."
                     style={{ boxShadow: '1px 1px 1px rgba(0, 0, 0, 0.15)' }}
                     value={searchValue}
-                    onChange={handleSearch}
+                    onChange={(e) => setSearchValue(e.target.value)}
                 />
             </div>
         </div>

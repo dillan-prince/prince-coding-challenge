@@ -7,76 +7,77 @@ import Map from './components/map';
 const App = () => {
     const [storeList, setStoreList] = useState([]);
 
-    const getStoreList = async () => {
-        let stores = [];
+    const [coordinates, setCoordinates] = useState({
+        latitude: 37.0902,
+        longitude: -95.7129,
+        zoom: 4
+    });
 
-        const cacheListKey = 'popspots_store_list_object_cache_key';
-        const cacheTimeKey = 'popspots_store_list_time_cache_key';
+    useEffect(() => {
+        const setSortedStoreList = (stores) => {
+            setStoreList(
+                stores.sort((storeOne, storeTwo) => {
+                    const distanceOne = getDistance(coordinates, {
+                        latitude: storeOne.lat,
+                        longitude: storeOne.lng
+                    });
 
-        const storeListString = localStorage.getItem(cacheListKey);
-        const timeStoredString = localStorage.getItem(cacheTimeKey);
+                    const distanceTwo = getDistance(coordinates, {
+                        latitude: storeTwo.lat,
+                        longitude: storeTwo.lng
+                    });
 
-        if (storeListString) {
-            const timeStored = Number.parseInt(timeStoredString);
-            const now = Date.now();
+                    return distanceOne - distanceTwo;
+                })
+            );
+        };
 
-            // if object was stored less than 4 hours ago
-            if (now - timeStored < 1000 * 60 * 60 * 4) {
-                console.log('Retrieving storeList from cache');
-                stores = JSON.parse(storeListString);
+        const getStoreList = async () => {
+            let stores = [];
+
+            const cacheListKey = 'popspots_store_list_object_cache_key';
+            const cacheTimeKey = 'popspots_store_list_time_cache_key';
+
+            const storeListString = localStorage.getItem(cacheListKey);
+            const timeStoredString = localStorage.getItem(cacheTimeKey);
+
+            if (storeListString) {
+                const timeStored = Number.parseInt(timeStoredString);
+                const now = Date.now();
+
+                // if object was stored less than 4 hours ago
+                if (now - timeStored < 1000 * 60 * 60 * 4) {
+                    stores = JSON.parse(storeListString);
+                    return setSortedStoreList(stores);
+                }
             }
-        } else {
-            console.log('Retrieving storeList from server');
+
             const response = await fetch(
                 'https://dashboard.getpopspots.com/public-data/challenge'
             );
             const json = await response.json();
+
             localStorage.setItem(cacheListKey, JSON.stringify(json));
             localStorage.setItem(cacheTimeKey, Date.now().toString());
-            stores = json;
-        }
 
-        setStoreList(
-            stores.sort((storeOne, storeTwo) => {
-                const distanceOne = getDistance(coordinates, {
-                    latitude: storeOne.lat,
-                    longitude: storeOne.lng
-                });
+            return setSortedStoreList(json);
+        };
 
-                const distanceTwo = getDistance(coordinates, {
-                    latitude: storeTwo.lat,
-                    longitude: storeTwo.lng
-                });
-
-                return distanceOne - distanceTwo;
-            })
-        );
-    };
-
-    useEffect(() => {
         getStoreList();
-    }, []);
-
-    const [zoom, setZoom] = useState(4);
-    const [coordinates, setCoordinates] = useState({
-        latitude: 37.0902,
-        longitude: -95.7129
-    });
+    }, [coordinates]);
 
     const handleSearchBarChange = (coords) => {
-        setCoordinates(coords);
-        setZoom(8);
+        setCoordinates({ ...coords, zoom: 8 });
     };
 
     const handleStoreSelected = (store) => {
         const { lat, lng } = store;
-        setCoordinates({ latitude: lat, longitude: lng });
-        setZoom(13);
+        setCoordinates({ latitude: lat, longitude: lng, zoom: 10 });
     };
 
     return (
         <div className="App">
-            <div className="container">
+            <div className="container-fluid">
                 <div className="row">
                     <div
                         className="col-md"
@@ -102,11 +103,7 @@ const App = () => {
                         />
                     </div>
                     <div className="col">
-                        <Map
-                            coordinates={coordinates}
-                            storeList={storeList}
-                            zoom={zoom}
-                        />
+                        <Map coordinates={coordinates} storeList={storeList} />
                     </div>
                 </div>
             </div>

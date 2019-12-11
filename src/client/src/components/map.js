@@ -13,6 +13,18 @@ const Map = (props) => {
         setSelectedMarker(props.storeList[index]);
     };
 
+    const renderMarkers = () => {
+        return props.storeList.map((store, index) => {
+            return (
+                <Marker
+                    key={index}
+                    position={[store.lat, store.lng]}
+                    onClick={() => handleMarkerClick(index)}
+                ></Marker>
+            );
+        });
+    };
+
     return (
         <div style={{ position: 'relative' }}>
             {!props.coordinates && 'Loading Map...'}
@@ -20,22 +32,14 @@ const Map = (props) => {
                 <LeafletMap
                     style={{ height: '85vh' }}
                     center={coordinates}
-                    zoom={props.zoom}
+                    zoom={props.coordinates.zoom}
                     onClick={() => setSelectedMarker(null)}
                 >
                     <TileLayer
                         attribution='&amp;copy <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
                         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                     />
-                    {props.storeList.map((store, index) => {
-                        return (
-                            <Marker
-                                key={index}
-                                position={[store.lat, store.lng]}
-                                onClick={() => handleMarkerClick(index)}
-                            ></Marker>
-                        );
-                    })}
+                    {renderMarkers()}
                 </LeafletMap>
             )}
             {selectedMarker && <MapPopup store={selectedMarker} />}
