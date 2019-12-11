@@ -21,6 +21,7 @@ const Map = (props) => {
                     style={{ height: '85vh' }}
                     center={coordinates}
                     zoom={props.zoom}
+                    onClick={() => setSelectedMarker(null)}
                 >
                     <TileLayer
                         attribution='&amp;copy <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
