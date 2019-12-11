@@ -22,7 +22,7 @@ I originally intended to integrate with the Google Maps API. Unfortunately, Goog
 
 #### [OpenCageData](https://opencagedata.com/)
 
-The server has an endpoint (`/api/search`) integrates with OpenCageData to utilize their "forward geocoding" API, which attempts to convert text to a pair of GPS coordinates.
+The server has an endpoint (`/api/search`) that integrates with OpenCageData to utilize their "forward geocoding" API, which attempts to convert text to a pair of GPS coordinates.
 
 #### [Debouncing With React Hooks](https://dev.to/gabe_ragland/debouncing-with-react-hooks-jci)
 
