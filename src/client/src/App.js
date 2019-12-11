@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { getDistance } from 'geolib';
 import SearchBar from './components/searchBar';
 import StoreList from './components/storeList';
 import Map from './components/map';
@@ -22,26 +23,41 @@ const App = () => {
                 console.log('Retrieving storeList from cache');
                 const stores = JSON.parse(storeListString);
                 setStoreList(stores);
+                return;
             }
-        } else {
-            console.log('Retrieving storeList from server');
-            const response = await fetch(
-                'https://dashboard.getpopspots.com/public-data/challenge'
-            );
-            const json = await response.json();
-            localStorage.setItem(cacheListKey, JSON.stringify(json));
-            localStorage.setItem(cacheTimeKey, Date.now().toString());
-            setStoreList(json);
         }
+
+        console.log('Retrieving storeList from server');
+        const response = await fetch(
+            'https://dashboard.getpopspots.com/public-data/challenge'
+        );
+        const json = await response.json();
+        localStorage.setItem(cacheListKey, JSON.stringify(json));
+        localStorage.setItem(cacheTimeKey, Date.now().toString());
+        setStoreList(json);
     };
 
     useEffect(() => {
         getStoreList();
     }, []);
 
-    const handleSearchBarChange = async (value) => {
-        const response = await fetch(`/api/search?q=${value}`);
-        console.log(response);
+    const handleSearchBarChange = (coordinates) => {
+        console.log(coordinates);
+        setStoreList(
+            storeList.sort((storeOne, storeTwo) => {
+                const distanceOne = getDistance(coordinates, {
+                    latitude: storeOne.lat,
+                    longitude: storeOne.lng
+                });
+
+                const distanceTwo = getDistance(coordinates, {
+                    latitude: storeTwo.lat,
+                    longitude: storeTwo.lng
+                });
+
+                return distanceOne - distanceTwo;
+            })
+        );
     };
 
     const handleStoreSelected = (store) => {
