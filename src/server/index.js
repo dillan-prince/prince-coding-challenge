@@ -1,6 +1,7 @@
 const express = require('express');
 
 const app = express();
+app.use('/api', require('./routes/index'));
 
 if (process.env.NODE_ENV === 'production') {
     app.use(express.static('src/client/build'));
